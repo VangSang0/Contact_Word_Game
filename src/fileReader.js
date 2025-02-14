@@ -13,4 +13,4 @@ function loadWordList(filepath) {
 }
 
 
-module.exports = { loadDictionary };
+module.exports = { loadWordList };
