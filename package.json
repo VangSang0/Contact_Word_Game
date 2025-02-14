@@ -1,0 +1,15 @@
+{
+  "name": "contact_word_game",
+  "version": "1.0.0",
+  "description": "A \"Campfire\" game that people enjoy.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "readline-sync": "^1.4.10"
+  }
+}
