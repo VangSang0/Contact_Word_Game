@@ -3,7 +3,7 @@ const fs = require('fs');
 function loadWordList(filepath) {
     try{
         const data = fs.readFileSync(filepath, 'utf8');
-        const words = data.split('\n');
+        const words = data.split('\r\n');
         return words;
     }
     catch(err) {
@@ -13,4 +13,4 @@ function loadWordList(filepath) {
 }
 
 
-module.exports = { loadDictionary };
+module.exports = { loadWordList };
