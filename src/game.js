@@ -42,7 +42,7 @@ function startGame() {
             gameStart = false;
         }
         if(charCount === randomWord.length) {
-            console.log(`Congratulations! I have no more letters to give you: ${randomWord}`);
+            console.log(`Congratulations! I have no more letters to give you. \n My word is: ${randomWord}`);
             gameStart = false;
         }
     }
