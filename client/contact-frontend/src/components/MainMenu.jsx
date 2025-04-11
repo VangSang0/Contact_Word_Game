@@ -1,41 +1,69 @@
-import React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
 
-const socket = io('http://localhost:3000');
+const socket = io('http://localhost:3001');
 
 function MainMenu() {
-    // Setting up Socket IO functions
-    // States
-    // join function
-    // create function
-    
-    
+    const [username, setUsername] = useState('');
+    const [showInput, setShowInput] = useState(false);
+    const [lobbyCode, setLobbyCode] = useState('');
 
-    function createLobby() {
-
+    const createLobby = () => {
+        if (username) {
+            socket.emit('create-lobby', { username });
+        }
     }
 
-    function joinLobby() {
+    const joinLobby = () => {
+        if (username && lobbyCode) {
+            socket.emit('join-lobby', { username, lobbyCode });
 
+            socket.on('join-error', (message) => {
+                alert(message.message);
+            });
+
+            socket.on('lobby-joined', ({ lobbyCode, players }) => {
+                alert(`Joined lobby ${lobbyCode} with players: ${players.join(', ')}`);
+            });
+        } else {
+            alert('Please enter a username and lobby code');
+        }
     }
-
-
-    function joinLobby() {
-        // Logic to join a lobby
-        console.log("Joining lobby...");
-    }
-
 
     return (
         <>
             <div className="title">
                 <h1>Contact</h1>
             </div>
+            <div className="username">
+                <input 
+                    type="text" 
+                    className="username-input" 
+                    placeholder='Enter Username...' 
+                    value={username} 
+                    onChange={(e) => setUsername(e.target.value)} 
+                />
+            </div>
             <div className="lobby-navigation">
-                <button className="create-lobby">Create lobby</button>
-                <button className="join-lobby">Join Lobby</button>
+                <button className="create-lobby" onClick={createLobby}>Create Lobby</button>
+                <button className="join-lobby" onClick={() => setShowInput(true)}>Join Lobby</button>
+                
+                {showInput && (
+                    <>
+                        <input 
+                            type="text" 
+                            className="lobby-code" 
+                            placeholder='Enter Lobby Code...' 
+                            value={lobbyCode} 
+                            onChange={(e) => setLobbyCode(e.target.value)} 
+                        />
+                        <button className="join-lobby-code" onClick={joinLobby}>Join</button>
+                        <button className="cancel-lobby-code" onClick={() => setShowInput(false)}>Cancel</button>
+                    </>
+                )}
             </div>
         </>
     )
 }
+
+export default MainMenu;
