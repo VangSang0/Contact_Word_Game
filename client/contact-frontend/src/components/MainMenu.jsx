@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
+import { useNavigate } from 'react-router-dom';
 
 const socket = io('http://localhost:3001');
 
@@ -9,6 +10,9 @@ function MainMenu() {
     const [lobbyCode, setLobbyCode] = useState('');
 
     useEffect(() => {
+        socket.on('lobby-created', ({ lobbyCode }) => {
+            alert(`Lobby created with code: ${lobbyCode}`);
+        });
         socket.on('join-error', (message) => {
             alert(message.message);
         });
@@ -52,7 +56,7 @@ function MainMenu() {
                 />
             </div>
             <div className="lobby-navigation">
-                <button className="create-lobby" onClick={createLobby}>Create Lobby</button>
+                <button className="create-lobby" onClick={ createLobby }>Create Lobby</button>
                 <button className="join-lobby" onClick={() => setShowInput(true)}>Join Lobby</button>
                 
                 {showInput && (
