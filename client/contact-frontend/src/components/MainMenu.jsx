@@ -8,6 +8,21 @@ function MainMenu() {
     const [showInput, setShowInput] = useState(false);
     const [lobbyCode, setLobbyCode] = useState('');
 
+    useEffect(() => {
+        socket.on('join-error', (message) => {
+            alert(message.message);
+        });
+    
+        socket.on('lobby-joined', ({ lobbyCode, players }) => {
+            alert(`Joined lobby ${lobbyCode} with players: ${players.join(', ')}`);
+        });
+    
+        return () => {
+            socket.off('join-error');
+            socket.off('lobby-joined');
+        };
+    }, []);
+
     const createLobby = () => {
         if (username) {
             socket.emit('create-lobby', { username });
@@ -17,14 +32,6 @@ function MainMenu() {
     const joinLobby = () => {
         if (username && lobbyCode) {
             socket.emit('join-lobby', { username, lobbyCode });
-
-            socket.on('join-error', (message) => {
-                alert(message.message);
-            });
-
-            socket.on('lobby-joined', ({ lobbyCode, players }) => {
-                alert(`Joined lobby ${lobbyCode} with players: ${players.join(', ')}`);
-            });
         } else {
             alert('Please enter a username and lobby code');
         }

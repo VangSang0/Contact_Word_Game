@@ -1,42 +1,39 @@
-const io = require('socket.io')(3000)
-const express = require('express')
-const cors = require('cors')
-const { v4: uuidv4 } = require('uuid')
+const http = require('http');
+const { Server } = require('socket.io');
+const express = require('express');
+const cors = require('cors');
+const { v4: uuidv4 } = require('uuid');
 
-const app = express()
-app.use(
-    cors({
+const app = express();
+const server = http.createServer(app);  // Create HTTP server
+const io = new Server(server, {         // Attach Socket.IO to HTTP server
+    cors: {
         origin: 'http://localhost:3000',
         methods: ['GET', 'POST'],
-        credentials: true,
-    })
-)
+    },
+});
 
 const MAXIMUM_PLAYERS = 10;
 let lobbies = {};
 
-
-
-io.on ('connection', (socket) => {
+io.on('connection', (socket) => {
     console.log('New user connected');
-    
+
     socket.on('create-lobby', ({ username }) => {
         const lobbyCode = uuidv4().slice(0, 6).toUpperCase();
         lobbies[lobbyCode] = {
             players: [],
             gameStarted: false,
             lobbyCode: lobbyCode,
-            host: username.socket.id,
+            host: socket.id,  // FIX: 'username.socket.id' is incorrect
         };
-        socket.join(lobbyCode)
-        socket.emit('lobby-created', { lobbyCode })
+        console.log(`Lobby created with code: ${lobbyCode}`);
+        socket.join(lobbyCode);
+        socket.emit('lobby-created', { lobbyCode });
     });
 
     socket.on('join-lobby', ({ username, lobbyCode }) => {
-        // if there is no Username, then return error
-        // if the lobby code is invalid, then return error
-        // if the lobby is full, then return error
-        // if the game has already started, then return error
+        console.log(`User ${username} is trying to join lobby ${lobbyCode}`);
         if (!lobbies[lobbyCode]) {
             socket.emit('join-error', { message: 'Invalid lobby code' });
             return;
@@ -49,8 +46,12 @@ io.on ('connection', (socket) => {
             socket.emit('join-error', { message: 'Game has already started' });
             return;
         }
-        socket.join(lobbyCode)
+        socket.join(lobbyCode);
         lobbies[lobbyCode].players.push(username);
-        socket.emit('lobby-joined', { lobbyCode, players: lobbies[lobbyCode].players });
-    })
-})
+        io.to(lobbyCode).emit('lobby-joined', { lobbyCode, players: lobbies[lobbyCode].players });
+    });
+});
+
+server.listen(3001, () => {
+    console.log('Server running on port 3001');
+});
